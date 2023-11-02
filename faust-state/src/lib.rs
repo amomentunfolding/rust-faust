@@ -7,24 +7,18 @@ use std::{
 
 const DEFAULT_NAME: &str = "rust_faust";
 
-#[derive(Debug)]
-pub struct DspHandle<T> {
-    dsp: Box<T>,
+pub type DspType = dyn FaustDsp<T=f32> + Send + Sync;
+
+//#[derive(Debug)]
+pub struct DspHandle {
+    dsp: Box<DspType>,
     dsp_tx: Producer<State>,
     dsp_rx: Consumer<State>,
     name: String,
 }
 
-impl<T> DspHandle<T>
-where
-    T: FaustDsp<T = f32> + 'static,
-{
-    pub fn new() -> (Self, StateHandle) {
-        let dsp = Box::new(T::new());
-        Self::from_dsp(dsp)
-    }
-
-    pub fn from_dsp(mut dsp: Box<T>) -> (Self, StateHandle) {
+impl DspHandle {
+    pub fn from_dsp(mut dsp: Box<DspType>) -> (Self, StateHandle) {
         let meta = MetaBuilder::from_dsp(dsp.as_mut());
         let params = ParamsBuilder::from_dsp(dsp.as_mut());
         let name = meta
@@ -182,6 +176,8 @@ where
     pub fn num_outputs(&self) -> usize {
         self.dsp.get_num_outputs() as usize
     }
+
+    pub fn sample_rate(&self) -> i32 { self.dsp.get_sample_rate() }
 
     pub fn init(&mut self, sample_rate: i32) {
         self.dsp.init(sample_rate)
@@ -423,10 +419,8 @@ impl ParamsBuilder {
             // state: Vec::new(),
         }
     }
-    fn from_dsp<D>(dsp: &mut D) -> HashMap<i32, Node>
-    where
-        D: FaustDsp<T = f32>,
-    {
+
+    fn from_dsp(dsp: &mut DspType) -> HashMap<i32, Node> {
         let mut builder = Self::new();
         dsp.build_user_interface(&mut builder);
         builder.inner
