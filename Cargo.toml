@@ -2,7 +2,5 @@
 members = [
   "faust-build", 
   "faust-types", 
-  "faust-state",
-  "examples/example-jack",
-  "examples/example-dbmeter-jack", 
+  "faust-state"
 ]
