@@ -114,7 +114,7 @@ impl DspHandle {
         unsafe {
             use std::arch::asm;
             let fspr: u32;
-            asm!("msr fpcr, {0:r}", out(reg) fspr);
+            asm!("msr fpcr, {0:w}", out(reg) fspr);
             return Some(fspr);
         }
         #[cfg(target_feature = "sse")]
@@ -132,7 +132,7 @@ impl DspHandle {
         #[cfg(any(target_arch = "arm", target_arch = "aarch64"))]
         unsafe {
             use std::arch::asm;
-            asm!("mrs {0:r}, fpcr", in(reg) fspr);
+            asm!("mrs {0:w}, fpcr", in(reg) fspr);
             return;
         }
         #[cfg(target_feature = "sse")]
