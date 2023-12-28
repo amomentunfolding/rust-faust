@@ -73,6 +73,7 @@ impl DspHandle {
             None
         };
 
+        /*
         // Potentially improves the performance of SIMD floating-point math
         // by flushing denormals/underflow to zero.
         // See: https://gist.github.com/GabrielMajeri/545042ee4f956d5b2141105eb6a505a9
@@ -91,13 +92,16 @@ impl DspHandle {
         if let Some(fpsr) = fpsr {
             self.set_fp_status_register(fpsr | mask);
         }
+        */
 
         self.compute(count, inputs, outputs);
 
+        /*
         // Reset fp status register to old value
         if let Some(fpsr) = fpsr {
             self.set_fp_status_register(fpsr);
         }
+        */
 
         if !self.dsp_tx.is_full() && state.is_some() {
             let mut state = state.take().unwrap();
